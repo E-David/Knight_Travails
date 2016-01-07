@@ -28,9 +28,9 @@ end
 	def possible_arrays(array)
 	possible_changes = [[2,1],[2,-1],[1,2],[1,-2],[-2,1],[-2,-1],[-1,2],[-1,-2]]
 	possible_changes.map! { |c| [c,array].transpose.map { |t| t.reduce(:+) } }
-	p possible_changes.sort
+	return p possible_changes.select { |x| x.none? { |y| y > 7 || y < 0 } }.sort
 	end
-	possible_arrays([3,3])
+	possible_arrays([2,2])
 
 #array = [(0..7).to_a.sample, (0..7).to_a.sample]
 #x = Node.new(array)

@@ -1,8 +1,9 @@
 #create a chess board with a horizontal array and vertical area of possible moves
 class Board
-	attr_accessor :knight, :valid_moves
-	def initialize(knight, valid_moves=[])
+	attr_accessor :knight, :valid_moves, :parent
+	def initialize(knight, parent=nil, valid_moves=[])
 		@knight = knight
+		@parent = parent
 		@valid_moves = valid_moves
 		validate_moves
 	end
@@ -11,7 +12,8 @@ class Board
 	def to_s
 		str = ""
 		str += "@knight: #{@knight} "
-		str += "@valid_moves: #{@valid_moves} "
+		str += "@parent: #{@parent} " if @parent != nil
+		str += "@valid_moves: #{@valid_moves.sort} "
 	end
 
 	def possible_moves(knight_position)
@@ -28,38 +30,58 @@ class Board
 	end
 end
 
-def build_tree(current_knight_position)
-	current_knight_position = Board.new(current_knight_position)
-	p current_knight_position.to_s
-	new_knight_position = 
-end
-
-def bfs(knight_start, knight_end)
-	bst = build_tree(knight_start)
-	queue = [bst.first]
-	until queue.empty?
-		current = queue.shift
-		return current if current.value == value
-		queue << current.left_child unless current.left_child.nil?
-		queue << current.right_child unless current.right_child.nil?
+class Knight_Travails
+	attr_accessor :squares_visited, :move_count, :movement_tracking, :move_list
+	def initialize
+		@movement_tracking = Array.new
+		@move_count = 0
+		@squares_visited = Array.new
+		@move_list = Array.new
 	end
-	nil
-end
 
-def dfs(array,value)
-	bst = build_tree(array)
-	stack = [bst.first]
-	until stack.empty?
-		current = stack.shift
-		return current if current.value == value
-		stack << current.left_child unless current.left_child.nil?
-		stack << current.right_child unless current.right_child.nil?
+	def build_tree(current_knight_position, parent)
+		root = Board.new(current_knight_position, parent)
+		root
 	end
-	nil
-end
-#vertical and horizontal arrays act as children, root is knight location
-#create a bst to find this location
-# use dfs OR bfs to find the fastest way to get knight to specified location
-#create a knight and place in a random location
 
-build_tree([3,7])
+	def bfs(knight_start, knight_end)
+		bst = build_tree(knight_start, nil)
+		queue = []
+		movement_tracking << bst
+		x = []
+		catch(:result) do
+			until movement_tracking.size == 64
+				movement_tracking.each { |q| queue << q }
+				until queue.empty?
+					current = queue.shift
+					if current.knight == knight_end
+						p current.to_s
+						x << current
+						throw :result 
+					end
+					current.valid_moves.each do |move| 
+						movement_tracking << build_tree(move, current.knight) unless @squares_visited.include?(move)
+						@squares_visited << move
+					end
+				end
+				@move_count += 1
+			end
+		end
+		until x.last.knight == knight_start
+			movement_tracking.each { |y| x << y if y.knight == x.last.parent }
+		end
+		x.each { |y| move_list << y.knight}
+		shortest_path(knight_start, knight_end)
+	end
+
+	def shortest_path(knight_start, knight_end)
+		p "You can get to the #{knight_end} square from the #{knight_start} square in #{move_count} moves! Here's how:" 
+		move_list.reverse.each { |move| p move }
+	end
+end
+all_moves = []
+(0..7).each { |x| (0..7).each { |y| all_moves << [x,y] } }
+x = Knight_Travails.new
+#x.bfs(all_moves.sample, all_moves.sample)
+x.bfs([0,0],[3,3])
+
