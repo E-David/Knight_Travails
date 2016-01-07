@@ -49,13 +49,13 @@ class Knight_Travails
 		queue = []
 		movement_tracking << bst
 		x = []
+		return p "You are already on the #{knight_start} square!" if knight_start == knight_end
 		catch(:result) do
-			until movement_tracking.size == 64
+			until movement_tracking.size == 100
 				movement_tracking.each { |q| queue << q }
 				until queue.empty?
 					current = queue.shift
 					if current.knight == knight_end
-						p current.to_s
 						x << current
 						throw :result 
 					end
@@ -83,5 +83,5 @@ all_moves = []
 (0..7).each { |x| (0..7).each { |y| all_moves << [x,y] } }
 x = Knight_Travails.new
 #x.bfs(all_moves.sample, all_moves.sample)
-x.bfs([0,0],[3,3])
+x.bfs(all_moves.sample,all_moves.sample)
 
